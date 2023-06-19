@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Live Cricket Scores</title>
+  </head>
+  <body>
+    <h1>Live Cricket Scores</h1>
+    <label for="url">Enter URL:</label>
+    <input type="text" id="url" name="url">
+    <button onclick="fetchData()">Fetch Data</button>
+    <div id="data"></div>
+
+    <script>
+      async function fetchData() {
+        const url = document.getElementById('url').value;
+        const response = await fetch(url);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, 'text/html');
+
+        // Extract data from HTML
+        const score = doc.querySelector('.cscore_score').textContent;
+        const wickets = doc.querySelector('.cscore_wickets').textContent;
+        const batsmen = Array.from(doc.querySelectorAll('.batsman')).map(batsman => {
+          return {
+            name: batsman.querySelector('.batsman-name').textContent,
+            runs: batsman.querySelector('.batsman-runs').textContent
+          };
+        });
+
+        // Display data on website
+        let dataHTML = `<p>Score: ${score}</p>`;
+        dataHTML += `<p>Wickets: ${wickets}</p>`;
+        dataHTML += '<h2>Batsmen</h2>';
+        batsmen.forEach(batsman => {
+          dataHTML += `<p>${batsman.name}: ${batsman.runs} runs</p>`;
+        });
+        document.getElementById('data').innerHTML = dataHTML;
+      }
+    </script>
+  </body>
+</html>
